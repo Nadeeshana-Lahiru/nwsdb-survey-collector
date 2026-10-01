@@ -1,63 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export default function Sidebar() {
-  const [active, setActive] = useState<"deployed" | "draft" | "archived">(
-    "deployed"
-  );
+export default function Sidebar({ role }: { role: "admin" | "collector" }) {
+  const pathname = usePathname();
 
   const items = [
-    { key: "deployed", label: "Deployed", count: 1 },
-    { key: "draft", label: "Draft", count: 0 },
-    { key: "archived", label: "Archived", count: 0 },
-  ] as const;
+    { href: "/projects", label: "Projects", icon: "folder", adminOnly: false },
+    { href: "/users", label: "Users", icon: "users", adminOnly: true },
+    { href: "/stats", label: "Statistics", icon: "chart", adminOnly: false },
+  ].filter((item) => !item.adminOnly || role === "admin");
 
   return (
-    <aside className="w-64 shrink-0 border-r border-gray-200 bg-white flex flex-col">
-      {/* NEW Button */}
-      <div className="p-4">
-        <button className="w-full rounded-md bg-[#2094f3] py-2 text-sm font-medium text-white hover:bg-[#1a7fd1] transition">
-          NEW
-        </button>
-      </div>
-
-      {/* Filter List */}
-      <nav className="flex-1 px-2">
+    <aside className="flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white">
+      <nav className="flex-1 p-3">
         <ul className="space-y-1">
-          {items.map((item) => (
-            <li key={item.key}>
-              <button
-                onClick={() => setActive(item.key)}
-                className={`w-full flex items-center justify-between rounded-md px-3 py-2 text-sm transition ${
-                  active === item.key
-                    ? "bg-gray-100 font-medium text-gray-900"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <span>{item.label}</span>
-                <span className="text-xs text-gray-500">{item.count}</span>
-              </button>
-            </li>
-          ))}
+          {items.map((item) => {
+            const active =
+              pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition ${
+                    active
+                      ? "bg-blue-50 font-medium text-[#004C99]"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <SidebarIcon name={item.icon} />
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
-
-      {/* Bottom Help Icon */}
-      <div className="p-4 flex items-center gap-4 text-gray-400">
-        <button aria-label="Help" className="hover:text-gray-600">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-            <path
-              d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7v.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <circle cx="12" cy="17" r="1" fill="currentColor" />
-          </svg>
-        </button>
-      </div>
     </aside>
   );
+}
+
+function SidebarIcon({ name }: { name: string }) {
+  const common = {
+    width: 18,
+    height: 18,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+  switch (name) {
+    case "folder":
+      return (
+        <svg {...common}>
+          <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+        </svg>
+      );
+    case "users":
+      return (
+        <svg {...common}>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      );
+    case "chart":
+      return (
+        <svg {...common}>
+          <path d="M3 3v18h18" />
+          <path d="M7 15l3-3 4 4 5-7" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }

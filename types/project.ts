@@ -1,7 +1,9 @@
+export type ProjectStatus = "deployed" | "draft" | "archived";
+
 export interface Project {
   id: string;
   name: string;
-  status: "deployed" | "draft" | "archived";
+  status: ProjectStatus;
   owner: string;
   lastEditedBy: string;
   dateModified: string;

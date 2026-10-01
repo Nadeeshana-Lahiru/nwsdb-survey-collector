@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NWSDB Survey Collector",
-  description: "KoboToolbox-style survey collection dashboard",
+  title: "DBtool",
+  description: "National Water Supply & Drainage Board",
 };
 
 export default function RootLayout({
